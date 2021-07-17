@@ -1,5 +1,7 @@
 ## SOSILE-SERVER
 
+UPDATE: paused until amazingefren.com is deployed on my server, need a job ASAP, hire-me.txt :|
+
 Reimplementation of [sm-server](https://github.com/amazingefren/sm-server)
 
 Goals are still the same
