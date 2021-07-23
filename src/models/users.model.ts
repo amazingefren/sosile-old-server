@@ -1,5 +1,6 @@
 import "reflect-metadata";
 import { Field, InputType, ObjectType } from "type-graphql";
+import { Post } from "./posts.model";
 
 @ObjectType()
 export class User {
@@ -17,24 +18,6 @@ export class User {
 
   @Field()
   joinDate: Date;
-}
-
-@ObjectType()
-export class Post {
-  @Field((_) => Number)
-  id: number;
-
-  @Field((_) => String)
-  content: string;
-
-  @Field()
-  createdAt: Date;
-
-  @Field()
-  updatedAt: Date;
-
-  @Field(_=>User)
-  author: User;
 }
 
 @InputType()

@@ -22,8 +22,7 @@
     "resolveJsonModule": true,
     "strictPropertyInitialization": false,
 
-    "baseUrl": "./src",
-    "paths": {}
+    "baseUrl": "./src"
   },
   "exclude": ["node_modules"],
   "include": ["./src/**/*.ts"]
