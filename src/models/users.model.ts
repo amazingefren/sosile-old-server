@@ -30,6 +30,15 @@ export class UserUniqueInput{
 }
 
 @InputType()
+export class UserAuthInput{
+  @Field(_=>String,{nullable: false})
+  username: string;
+
+  @Field(_=>String,{nullable: false})
+  password: string;
+}
+
+@InputType()
 export class CreateUserInput {
   @Field()
   username: string;

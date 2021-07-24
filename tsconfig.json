@@ -22,7 +22,9 @@
     "resolveJsonModule": true,
     "strictPropertyInitialization": false,
 
-    "baseUrl": "./src"
+    "baseUrl": "./src",
+
+    "typeRoots": ["./src/declarations"]
   },
   "exclude": ["node_modules"],
   "include": ["./src/**/*.ts"]

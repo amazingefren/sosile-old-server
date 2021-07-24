@@ -5,7 +5,11 @@ import prisma from "./services/prisma.service";
 import { graphqlHTTP } from "express-graphql";
 import { buildSchema } from "type-graphql";
 import { UserResolver } from "./resolvers/users.resolver";
+// import session from 'express-session'
 import { PostResolver } from "./resolvers/posts.resolver";
+import { AuthResolver } from "./resolvers/auth.resolver";
+import authGuard from './middleware/auth.guard'
+
 require("dotenv").config();
 
 const app = express(),
@@ -28,11 +32,23 @@ async function startServer() {
     console.log("connected to db");
   });
 
-  app.get("/", async (_, res: Response) => {
+  /* app.use(session({
+    secret: 'secret',
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+      maxAge: 1000*30
+    }
+  })) */
+
+  app.use(authGuard)
+
+  app.get("/", async (req: any, res: Response) => {
+    console.log(req.session)
     return res.send("Hello World");
   });
 
-  const schema = await buildSchema({ resolvers: [UserResolver, PostResolver] });
+  const schema = await buildSchema({ resolvers: [AuthResolver, UserResolver, PostResolver] });
 
   app.use(
     "/graphql",
