@@ -11,6 +11,7 @@ import {
 import userService from "../services/users.service";
 import postService from "../services/posts.service";
 import AuthGuard from '../decorators/auth.dec'
+import CurrentUser from "../decorators/users.dec";
 
 @Resolver(User)
 export class UserResolver {
@@ -19,6 +20,13 @@ export class UserResolver {
   async user(@Arg("id") id: number) {
     return await userService.findById(id);
   }
+
+  @AuthGuard()
+  @Query(_=>User,{nullable: true})
+  async whoAmI(@CurrentUser() userId: number){
+    return await userService.findById(userId);
+  }
+
 
   @FieldResolver()
   async posts(@Root() user: User, @Ctx() ctx:any) {
@@ -30,5 +38,4 @@ export class UserResolver {
     payload.forEach((post) => (post.author = user));
     return payload;
   }
-
 }
