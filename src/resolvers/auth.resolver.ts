@@ -16,13 +16,20 @@ class AuthData {
   token: string
 
   @Field(_=>String)
+  refresh_token: string
+
+  @Field(_=>String)
   tokenExpiration: string
 }
 
 const SignToken = async (user: User): Promise<AuthData> => {
-  const token = jwt.sign({userId: user.id, username: user.username, email: user.email}, 'secret', {expiresIn: '5m'})
+  const token_payload = {userId: user.id, username: user.username, email: user.email}
 
-  return {id: user.id, token, tokenExpiration: '5m'}
+  // TODO: SECRETS
+  const token = jwt.sign(token_payload, 'secret', {expiresIn: '5m'})
+  const refresh_token = jwt.sign(token_payload, 'refreshsecret', {expiresIn: '30d'})
+
+  return {id: user.id, token, refresh_token, tokenExpiration: '5m'}
 }
 
 @Resolver()
