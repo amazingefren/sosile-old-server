@@ -30,7 +30,7 @@ export class UserUniqueInput{
 }
 
 @InputType()
-export class UserAuthInput{
+export class LoginInput{
   @Field(_=>String,{nullable: false})
   username: string;
 
@@ -39,7 +39,7 @@ export class UserAuthInput{
 }
 
 @InputType()
-export class CreateUserInput {
+export class RegisterInput {
   @Field()
   username: string;
   @Field()

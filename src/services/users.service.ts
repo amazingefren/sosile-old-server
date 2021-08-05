@@ -1,4 +1,4 @@
-import { CreateUserInput } from "../models/users.model";
+import { RegisterInput } from "../models/users.model";
 import prisma from "./prisma.service";
 
 const userService = {
@@ -18,7 +18,7 @@ const userService = {
     }
     return user;
   },
-  async create(data: CreateUserInput): Promise<boolean> {
+  async create(data: RegisterInput): Promise<boolean> {
     try {
       const completed = await prisma.user.create({ data });
       if (completed) {
