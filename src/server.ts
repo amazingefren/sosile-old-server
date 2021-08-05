@@ -8,12 +8,16 @@ import { UserResolver } from "./resolvers/users.resolver";
 // import session from 'express-session'
 import { PostResolver } from "./resolvers/posts.resolver";
 import { AuthResolver } from "./resolvers/auth.resolver";
-import authGuard from './middleware/auth.guard'
+import authGuard from "./middleware/auth.guard";
+import cookieParser from 'cookie-parser';
 
 require("dotenv").config();
 
 const app = express(),
   PORT = process.env.PORT || 3000;
+app.use(cookieParser())
+
+
 
 if (process.env.NODE_ENV == "development") {
   app.use(
@@ -41,14 +45,17 @@ async function startServer() {
     }
   })) */
 
-  app.use(authGuard)
+
+  app.use(authGuard);
 
   app.get("/", async (req: any, res: Response) => {
-    console.log(req.session)
+    console.log(req.session);
     return res.send("Hello World");
   });
 
-  const schema = await buildSchema({ resolvers: [AuthResolver, UserResolver, PostResolver] });
+  const schema = await buildSchema({
+    resolvers: [AuthResolver, UserResolver, PostResolver],
+  });
 
   app.use(
     "/graphql",
