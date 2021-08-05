@@ -5,18 +5,20 @@ import prisma from "./services/prisma.service";
 import { graphqlHTTP } from "express-graphql";
 import { buildSchema } from "type-graphql";
 import { UserResolver } from "./resolvers/users.resolver";
-// import session from 'express-session'
+// import session from "express-session";
 import { PostResolver } from "./resolvers/posts.resolver";
 import { AuthResolver } from "./resolvers/auth.resolver";
+import cors from "cors";
 import authGuard from "./middleware/auth.guard";
-import cookieParser from 'cookie-parser';
+import cookieParser from "cookie-parser";
 
 require("dotenv").config();
 
 const app = express(),
   PORT = process.env.PORT || 3000;
-app.use(cookieParser())
 
+app.use(cors({origin: 'http://localhost:4000', credentials: true}));
+app.use(cookieParser());
 
 
 if (process.env.NODE_ENV == "development") {
@@ -36,15 +38,16 @@ async function startServer() {
     console.log("connected to db");
   });
 
-  /* app.use(session({
-    secret: 'secret',
-    resave: false,
-    saveUninitialized: true,
-    cookie: {
-      maxAge: 1000*30
-    }
-  })) */
-
+  /* app.use(
+    session({
+      secret: "secret",
+      resave: false,
+      saveUninitialized: true,
+      cookie: {
+        maxAge: 1000 * 30,
+      },
+    })
+  ); */
 
   app.use(authGuard);
 
@@ -61,7 +64,7 @@ async function startServer() {
     "/graphql",
     graphqlHTTP({
       schema,
-      graphiql: true,
+      graphiql: false,
     })
   ),
     app.listen(PORT, () => {
