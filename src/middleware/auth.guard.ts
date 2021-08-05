@@ -3,8 +3,9 @@ import { NextFunction, Response } from "express";
 import jwt from "jsonwebtoken";
 import userService from "../services/users.service";
 import { Request } from "express";
+import { SignToken } from "../resolvers/auth.resolver";
 
-export default async function (req: Request, _: Response, next: NextFunction) {
+export default async function (req: Request, res: Response, next: NextFunction) {
   // const token = req.get("token");
   // const refresh_token = req.get("refresh_token");
   const token = req.cookies.token;
@@ -14,16 +15,16 @@ export default async function (req: Request, _: Response, next: NextFunction) {
   //
 
   // Check Tokens Exist
-  /* if (!token || token === "" || !refresh_token || refresh_token === "") {
+  if (!token || token === "" || !refresh_token || refresh_token === "") {
     req.isAuth = false;
     return next();
-  } */
+  }
 
   // Verify short token
   try {
     // TODO: SECRET
     if(token){
-      let tokenData = jwt.verify(token, "secret", {ignoreExpiration: true}) as JwtAuthToken;
+      let tokenData = jwt.verify(token, "secret") as JwtAuthToken;
       req.userId = tokenData.userId;
       req.isAuth = true;
       return next();
@@ -46,22 +47,27 @@ export default async function (req: Request, _: Response, next: NextFunction) {
     return next();
   }
 
-  /* console.log("")
-  console.log("-=--------------------------")
-  console.log(refresh_data)
-  console.log("-=--------------------------")
-  console.log("") */
+  if(!refresh_data.userId){
+    console.log("refresh_data: EMPTY?")
+    next();
+  } else {
+    const user = await userService.findById(refresh_data.userId)
+    req.userId=user.id
+    const {new_token} = await SignToken(user)
+    // TODO: prevent refresh_token abuse
+    res.cookie("token", new_token)
+    // res.cookie("refresh_token", new_refresh)
+  }
 
-  if (refresh_data.userId){
+
+  /* if (refresh_data.userId){
     try{
-      const user = await userService.findById(refresh_data.userId)
       req.userId = user.id
       // console.log(user)
     } catch (e) {
       console.log(e)
     }
-  }
-
+  } */
 
   return next()
 }
