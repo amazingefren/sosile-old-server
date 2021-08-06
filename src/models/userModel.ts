@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import { Field, InputType, ObjectType } from "type-graphql";
-import { Post } from "./posts.model";
+import { Post } from "./postModel";
 
 @ObjectType()
 export class User {
@@ -13,7 +13,7 @@ export class User {
   @Field((_) => String)
   username: string;
 
-  @Field((_) => [Post], {nullable: true})
+  @Field((_) => [Post], { nullable: true })
   posts: Post[] | null[];
 
   @Field()
@@ -21,20 +21,20 @@ export class User {
 }
 
 @InputType()
-export class UserUniqueInput{
-  @Field({nullable: false})
-  id: number
+export class UserUniqueInput {
+  @Field({ nullable: false })
+  id: number;
 
   @Field()
-  username?: string
+  username?: string;
 }
 
 @InputType()
-export class LoginInput{
-  @Field(_=>String,{nullable: false})
+export class LoginInput {
+  @Field((_) => String, { nullable: false })
   username: string;
 
-  @Field(_=>String,{nullable: false})
+  @Field((_) => String, { nullable: false })
   password: string;
 }
 

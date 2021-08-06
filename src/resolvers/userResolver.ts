@@ -1,17 +1,9 @@
 import "reflect-metadata";
-import { User } from "../models/users.model";
-import {
-  Resolver,
-  Query,
-  Arg,
-  FieldResolver,
-  Root,
-  Ctx,
-} from "type-graphql";
-import userService from "../services/users.service";
-import postService from "../services/posts.service";
-import AuthGuard from '../decorators/auth.dec'
-import CurrentUser from "../decorators/users.dec";
+import { User } from "../models";
+import { Resolver, Query, Arg, FieldResolver, Root, Ctx } from "type-graphql";
+import { userService, postService } from "../services";
+import AuthGuard from "../decorators/authDec";
+import CurrentUser from "../decorators/userDec";
 
 @Resolver(User)
 export class UserResolver {
@@ -22,15 +14,14 @@ export class UserResolver {
   }
 
   @AuthGuard()
-  @Query(_=>User,{nullable: true})
-  async whoAmI(@CurrentUser() userId: number){
+  @Query((_) => User, { nullable: true })
+  async whoAmI(@CurrentUser() userId: number) {
     return await userService.findById(userId);
   }
 
-
   @FieldResolver()
-  async posts(@Root() user: User, @Ctx() ctx:any) {
-    console.log(ctx.isAuth)
+  async posts(@Root() user: User, @Ctx() ctx: any) {
+    console.log(ctx.isAuth);
     let payload = await postService.postsByUserId(user.id);
     // Can I limit this field resolver to only be used with certain
     // Queries?

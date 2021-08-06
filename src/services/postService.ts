@@ -1,5 +1,5 @@
-import { CreatePostInput, Post } from "../models/posts.model";
-import prisma from "./prisma.service";
+import { CreatePostInput, Post } from "../models";
+import { prisma } from "./prismaService";
 
 const postService = {
   async create(data: CreatePostInput): Promise<boolean> {
@@ -22,4 +22,4 @@ const postService = {
   },
 };
 
-export default postService;
+export { postService };

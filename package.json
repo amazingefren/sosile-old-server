@@ -3,10 +3,13 @@
   "version": "0.1.0",
   "description": "server for sosile",
   "scripts": {
-    "dev": "nodemon ./src/server.ts"
+    "dev": "nodemon ./src/server.ts",
+    "format": "prettier --write \"src/**/*\"",
+    "migrate": "prisma migrate dev --name init"
   },
   "author": "",
   "license": "ISC",
+  "typings": "index.d.ts",
   "dependencies": {
     "@prisma/client": "^2.28.0",
     "bcrypt": "^5.0.1",

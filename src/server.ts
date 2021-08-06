@@ -1,65 +1,35 @@
-import express, { Response } from "express";
-import winston from "winston";
-import expressWinston from "express-winston";
-import prisma from "./services/prisma.service";
-import { graphqlHTTP } from "express-graphql";
-import { buildSchema } from "type-graphql";
-import { UserResolver } from "./resolvers/users.resolver";
-// import session from "express-session";
-import { PostResolver } from "./resolvers/posts.resolver";
-import { AuthResolver } from "./resolvers/auth.resolver";
-import cors from "cors";
-import authGuard from "./middleware/auth.guard";
+import express from "express";
 import cookieParser from "cookie-parser";
+import cors from "cors";
+import authGuard from "./middleware/authGuard";
+import { buildSchema } from "type-graphql";
+import { graphqlHTTP } from "express-graphql";
+import { prisma } from "./services";
+import { UserResolver, PostResolver, AuthResolver } from "./resolvers";
 
 require("dotenv").config();
 
-const app = express(),
-  PORT = process.env.PORT || 3000;
-
-app.use(cors({origin: 'http://localhost:4000', credentials: true}));
-app.use(cookieParser());
-
-
-if (process.env.NODE_ENV == "development") {
-  app.use(
-    expressWinston.logger({
-      transports: [new winston.transports.Console()],
-      format: winston.format.cli(),
-      meta: false,
-      expressFormat: true,
-      colorize: true,
-    })
-  );
-}
-
 async function startServer() {
+  // Initialize App
+  const app = express(),
+    PORT = process.env.PORT || 3000;
+
+  // Initialize Database
   await prisma.$connect().then(() => {
     console.log("connected to db");
   });
 
-  /* app.use(
-    session({
-      secret: "secret",
-      resave: false,
-      saveUninitialized: true,
-      cookie: {
-        maxAge: 1000 * 30,
-      },
-    })
-  ); */
-
+  // Apply Middleware
+  // Cors
+  app.use(cors({ origin: "http://localhost:4000", credentials: true }));
+  // Cookie Parser
+  app.use(cookieParser());
+  // Auth Guard
   app.use(authGuard);
-
-  app.get("/", async (req: any, res: Response) => {
-    console.log(req.session);
-    return res.send("Hello World");
-  });
-
+  // GraphQL
   const schema = await buildSchema({
     resolvers: [AuthResolver, UserResolver, PostResolver],
   });
-
   app.use(
     "/graphql",
     graphqlHTTP({
@@ -67,6 +37,7 @@ async function startServer() {
       graphiql: false,
     })
   ),
+    // Start Server
     app.listen(PORT, () => {
       console.log("server started on port: " + PORT);
     });

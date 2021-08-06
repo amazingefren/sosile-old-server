@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import { Field, InputType, ObjectType } from "type-graphql";
-import { User } from "./users.model";
+import { User } from "./userModel";
 
 @ObjectType()
 export class Post {

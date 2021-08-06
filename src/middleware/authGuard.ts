@@ -1,34 +1,34 @@
-import { JwtAuthToken, JwtRefreshToken } from "../declarations/jwt";
+// import { JwtAuthToken, JwtRefreshToken } from "../declarations/jwt";
 import { NextFunction, Response } from "express";
 import jwt from "jsonwebtoken";
-import userService from "../services/users.service";
+import { userService } from "../services";
 import { Request } from "express";
-import { SignToken } from "../resolvers/auth.resolver";
+import { SignToken } from "../resolvers";
+import { JwtAuthToken, JwtRefreshToken } from "@types";
 
 /*
-* RT = refresh_token
-* AT = access_token
-*
-* Database Store Session (RT) 
-*   - This can be used to invalidate RT
-* 
-* User should not send RT until AT is invalidated
-*   - Request RT only when, AT is invalid
-*   - RT Rotations*
-* 
-* GOAL: Provide User with Session Security Options
-*       Prevent Refresh Token Abuse
-*       Key Rotation / Server Security
-*
-* TODO: SECRET_KEYS
-*/
+ * RT = refresh_token
+ * AT = access_token
+ *
+ * Database Store Session (RT)
+ *   - This can be used to invalidate RT
+ *
+ * User should not send RT until AT is invalidated
+ *   - Request RT only when, AT is invalid
+ *   - RT Rotations*
+ *
+ * GOAL: Provide User with Session Security Options
+ *       Prevent Refresh Token Abuse
+ *       Key Rotation / Server Security
+ *
+ * TODO: SECRET_KEYS
+ */
 
 export default async function (
   req: Request,
   res: Response,
   next: NextFunction
 ) {
-
   const token = req.cookies.token;
   const refresh_token = req.cookies.refresh_token;
 
@@ -58,7 +58,7 @@ export default async function (
 
   if (!refresh_data.userId) {
     console.log("refresh_data: EMPTY?");
-    req.isAuth=false
+    req.isAuth = false;
     return next();
   } else {
     const user = await userService.findById(refresh_data.userId);

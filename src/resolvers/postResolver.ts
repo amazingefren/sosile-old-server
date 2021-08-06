@@ -1,9 +1,7 @@
 import "reflect-metadata";
-import { Post, CreatePostInput } from "../models/posts.model";
+import { Post, CreatePostInput } from "../models";
 import { Resolver, Mutation, Arg } from "type-graphql";
-import postService from "../services/posts.service";
-// import { User } from "../models/users.model";
-// import userService from "../services/users.service";
+import { postService } from "../services";
 
 @Resolver(Post)
 export class PostResolver {

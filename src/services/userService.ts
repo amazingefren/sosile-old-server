@@ -1,5 +1,5 @@
-import { RegisterInput } from "../models/users.model";
-import prisma from "./prisma.service";
+import { RegisterInput } from "../models";
+import { prisma } from "./prismaService";
 
 const userService = {
   async findByUsername(username: string): Promise<any | null> {
@@ -18,6 +18,7 @@ const userService = {
     }
     return user;
   },
+
   async create(data: RegisterInput): Promise<boolean> {
     try {
       const completed = await prisma.user.create({ data });
@@ -31,4 +32,5 @@ const userService = {
     }
   },
 };
-export default userService;
+
+export { userService };
