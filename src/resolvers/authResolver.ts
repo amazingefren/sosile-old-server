@@ -1,10 +1,11 @@
 import "reflect-metadata";
 import { User, LoginInput, RegisterInput } from "../models";
-import { Resolver, Arg, Mutation, Ctx } from "type-graphql";
+import { Resolver, Arg, Mutation, Ctx, Query } from "type-graphql";
 import { userService } from "../services";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { Response } from "express";
+import AuthGuard from '../decorators/authDec'
 
 const SALTROUNDS = 10;
 
@@ -56,5 +57,11 @@ export class AuthResolver {
     });
     data.password = hashed;
     return await userService.create(data);
+  }
+
+  @AuthGuard()
+  @Query((_)=>Boolean)
+  async isAuth(){
+    return true
   }
 }
