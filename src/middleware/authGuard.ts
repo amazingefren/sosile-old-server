@@ -5,6 +5,7 @@ import { userService } from "../services";
 import { Request } from "express";
 import { SignToken } from "../resolvers";
 import { JwtAuthToken, JwtRefreshToken } from "@types";
+import { UnauthorizedError } from "type-graphql";
 
 /*
  * RT = refresh_token
@@ -49,22 +50,45 @@ export default async function (
       refresh_token,
       "refreshsecret"
     ) as JwtRefreshToken;
-    req.isAuth = true;
   } catch (e: any) {
     req.isAuth = false;
     console.log(e);
     return next();
   }
 
+  // Error handling logic between AuthGuard && UserService
+  // IF user is not found in userservice, userservice should not return UnauthorizedError
+  // Instead return (new type of NOT_FOUND error TODO:)
+  // That way, this middleware can properly handle the response of UnauthorizedError
+  // CASE: user1 is friends with user2
+  // user2 deletes account
+  // user1 should not be sent an UnauthorizedError from the userservice
+  // instead a simple NOT_FOUND error can be sent
+  //
+  // SO: No UnauthorizedError anywhere besides here and the Authentication Decorator
+
   if (!refresh_data.userId) {
     console.log("refresh_data: EMPTY?");
     req.isAuth = false;
     return next();
   } else {
-    const user = await userService.findById(refresh_data.userId);
-    req.userId = user.id;
-    const { new_token } = await SignToken(user);
-    res.cookie("token", new_token);
+    try {
+      const user = await userService.findById(refresh_data.userId);
+      if (user.id){
+        console.log(user)
+        req.userId = user.id;
+        const { new_token } = await SignToken(user);
+        res.cookie("token", new_token);
+        req.isAuth = true;
+        return next();
+      } else {
+        req.isAuth = false;
+        new UnauthorizedError()
+      }
+    } catch {
+      req.isAuth = false;
+      new UnauthorizedError()
+    }
   }
 
   return next();
