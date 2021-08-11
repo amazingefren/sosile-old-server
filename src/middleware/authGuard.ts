@@ -6,6 +6,7 @@ import { Request } from "express";
 import { SignToken } from "../resolvers";
 import { JwtAuthToken, JwtRefreshToken } from "@types";
 import { UnauthorizedError } from "type-graphql";
+import Config from "../config";
 
 /*
  * RT = refresh_token
@@ -35,7 +36,7 @@ export default async function (
 
   try {
     if (token) {
-      let tokenData = jwt.verify(token, "secret") as JwtAuthToken;
+      let tokenData = jwt.verify(token, Config.AT_SECRET) as JwtAuthToken;
       req.userId = tokenData.userId;
       req.isAuth = true;
       return next();
@@ -46,13 +47,14 @@ export default async function (
 
   let refresh_data;
   try {
-    refresh_data = jwt.verify(
-      refresh_token,
-      "refreshsecret"
-    ) as JwtRefreshToken;
+    if (refresh_token) {
+      refresh_data = jwt.verify(
+        refresh_token,
+        Config.RT_SECRET
+      ) as JwtRefreshToken;
+    }
   } catch (e: any) {
     req.isAuth = false;
-    console.log(e);
     return next();
   }
 
@@ -67,15 +69,15 @@ export default async function (
   //
   // SO: No UnauthorizedError anywhere besides here and the Authentication Decorator
 
-  if (!refresh_data.userId) {
-    console.log("refresh_data: EMPTY?");
+  if (!refresh_data) {
+    // console.log("refresh_data: EMPTY?");
     req.isAuth = false;
     return next();
   } else {
     try {
       const user = await userService.findById(refresh_data.userId);
-      if (user.id){
-        console.log(user)
+      if (user.id) {
+        console.log(user);
         req.userId = user.id;
         const { new_token } = await SignToken(user);
         res.cookie("token", new_token);
@@ -83,11 +85,11 @@ export default async function (
         return next();
       } else {
         req.isAuth = false;
-        new UnauthorizedError()
+        new UnauthorizedError();
       }
     } catch {
       req.isAuth = false;
-      new UnauthorizedError()
+      new UnauthorizedError();
     }
   }
 

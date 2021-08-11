@@ -6,8 +6,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { Response } from "express";
 import AuthGuard from '../decorators/authDec'
-
-const SALTROUNDS = 10;
+import Config from '../config'
 
 export const SignToken = async (
   user: User
@@ -19,8 +18,8 @@ export const SignToken = async (
   };
 
   // TODO: SECRETS
-  const token = jwt.sign(token_payload, "secret", { expiresIn: "5s" });
-  const refresh_token = jwt.sign(token_payload, "refreshsecret", {
+  const token = jwt.sign(token_payload, Config.AT_SECRET, { expiresIn: "5s" });
+  const refresh_token = jwt.sign(token_payload, Config.RT_SECRET, {
     expiresIn: "30d",
   });
 
@@ -39,10 +38,12 @@ export class AuthResolver {
       const user = await userService.findByUsername(username);
       const match = await bcrypt.compare(password, user.password);
       !match && console.log("pass fail");
-      const { new_token, new_refresh } = await SignToken(user);
-      res.cookie("token", new_token);
-      res.cookie("refresh_token", new_refresh);
-      return user && match ? true : false;
+      if(match){
+        const { new_token, new_refresh } = await SignToken(user);
+        res.cookie("token", new_token);
+        res.cookie("refresh_token", new_refresh);
+      }
+      return user && match
     } catch (_) {
       console.log("user not found");
       return false;
@@ -52,7 +53,9 @@ export class AuthResolver {
   // Register Resolver
   @Mutation((_) => Boolean, { nullable: true })
   async register(@Arg("data") data: RegisterInput) {
-    const hashed = await bcrypt.hash(data.password, SALTROUNDS).catch((err) => {
+
+    const salt = await bcrypt.genSalt(Config.SALTROUNDS)
+    const hashed = await bcrypt.hash(data.password, salt).catch((err) => {
       throw err;
     });
     data.password = hashed;
